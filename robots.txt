@@ -1,0 +1,2 @@
+user-agent: *
+sitemap: https://www.pyjri.com/sitemap.txt
