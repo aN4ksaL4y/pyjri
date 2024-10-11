@@ -914,7 +914,7 @@
             left: -1.3%;
             width: 152.84%;
             height: 178.78%;
-            background-image: url(download.svg)
+            background-image: url(https://www.pyjri.com/download.svg)
         }
 
         .fajri-figure-box {
@@ -1532,6 +1532,7 @@
                     var fullUrl = 'https://www.pyjri.com/blog/' + slug;
 
                     // loadArticleContent(fullUrl)
+                    console.log(fullUrl)
                     container.append('<li class="blog-item"><a href="' + fullUrl + '">' + slug.replace(/-/g, ' ') + '</a></li>');
                 });
             }
