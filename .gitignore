@@ -1,1 +1,4 @@
 backlink/
+node_modules/
+
+*.json
