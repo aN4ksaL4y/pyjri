@@ -1804,7 +1804,6 @@
         opacity: 90%;
 
     }
-    
 </style>
 
 <meta name=referrer content=no-referrer>
@@ -1883,48 +1882,57 @@
         function toggleFullscreen(element) {
             element.classList.toggle('fullscreen');
         }
+        const apiUrl = 'https://gist.githubusercontent.com/github3112/457b453bb2e74d8bd23d74176f842ada/raw/e45b48f6105d89f027ed903eeaf4123b53389581/recently_played.json'
 
-        const songs = [{
-                title: "Song Title 1",
-                artist: "Artist 1",
-                cover: "https://i.scdn.co/image/ab67616d00001e0248c0373785bacfb52daebccc"
-            },
-            {
-                title: "Song Title 2",
-                artist: "Artist 2",
-                cover: "https://i.scdn.co/image/ab67616d0000b2731106d7f32364ad0e5be43659"
-            },
-            {
-                title: "Song Title 3",
-                artist: "Artist 3",
-                cover: "https://i.scdn.co/image/ab67616d0000b2737e45d957b07c99c7c4396ade"
-            },
-        ];
+
+        async function fetchSongData(apiUrl) {
+            try {
+                const response = await fetch(apiUrl);
+
+                // Check if the response is ok (status in the range 200-299)
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching song data:', error);
+                return []; // Return an empty array in case of an error
+            }
+        }
 
         let currentSongIndex = 0;
+        let songsArray = []; // Declare songsArray globally
 
         // Function to create the song elements dynamically
-        function createSongElements() {
+        async function createSongElements() {
+            songsArray = await fetchSongData(apiUrl); // Fetch and assign songsArray
+
             const slideshow = document.getElementById('slideshow');
-            songs.forEach((song, index) => {
+            // Clear previous content before adding new elements
+            slideshow.innerHTML = '';
+
+            // Use forEach to iterate over the array
+            songsArray.forEach((song, index) => {
                 const songDiv = document.createElement('div');
                 songDiv.className = 'song';
                 songDiv.style.display = index === currentSongIndex ? 'block' : 'none'; // Show only the current song
 
                 songDiv.innerHTML = `
-                <img class="album-cover" src="${song.cover}" alt="Album Cover of ${song.title}">
-                    <div class="info">
-                        <h2 class="song-title">${song.title}</h2>
-                        <p class="song-artist">${song.artist}</p>
-                    </div>
-                    <div class="progress-container">
-                        
-                        <div class="progress" onclick="moveProgress(event, 1)">
-                            <div class="progress-bar" id="progress-bar-1"></div></div>
-                            
-                        </div>
-                    </div>
-                `;
+            <img class="album-cover" src="${song.cover_image}" alt="Album Cover of ${song.song_name}">
+            <div class="info">
+                <h2 class="song-title">${song.song_name}</h2>
+                <p class="song-artist">${song.artist_name}</p>
+            </div>
+            <div class="progress-container">
+                <span></span>
+                <div class="progress" onclick="moveProgress(event, 1)">
+                    <div class="progress-bar" id="progress-bar-1"></div>
+                </div>
+                <span></span>
+            </div>
+        `;
                 slideshow.appendChild(songDiv);
             });
         }
@@ -1939,18 +1947,17 @@
 
         // Event listeners for navigation
         document.getElementById('prev').addEventListener('click', () => {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            currentSongIndex = (currentSongIndex - 1 + songsArray.length) % songsArray.length;
             loadSong(currentSongIndex);
         });
 
         document.getElementById('next').addEventListener('click', () => {
-            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            currentSongIndex = (currentSongIndex + 1) % songsArray.length;
             loadSong(currentSongIndex);
         });
 
         // Create song elements and load the first song on page load
-        createSongElements();
-        loadSong(currentSongIndex);
+        createSongElements().then(() => loadSong(currentSongIndex));
     </script>
 </body>
 
