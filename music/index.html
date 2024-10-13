@@ -8,7 +8,6 @@
 <meta property=og:url content=https://www.pyjri.com/music/ />
 <meta property=og:title content="Dari Mood ke Musik - Waktunya Cari Playlist Baru">
 <meta property=og:description content="Apakah kamu merasa jenuh dengan playlist yang monoton? oh ok.">
-<meta property=og:image content=https://www.pyjri.com/music//shareMain.png>
 <meta property=twitter:card content=summary_large_image>
 <meta property=twitter:url content=https://www.pyjri.com/music/ />
 <meta property=twitter:title content="Dari Mood ke Musik - Waktunya Cari Playlist Baru">
@@ -20,9 +19,10 @@
 <link rel="icon" type="image/png" href="https://www.pyjri.com/android-chrome-192x192.png" sizes="192x192">
 <link rel="icon" type="image/png" href="https://www.pyjri.com/android-chrome-512x512.png" sizes="512x512">
 <link rel="apple-touch-icon" href="https://www.pyjri.com/apple-touch-icon.png">
+<script src="https://unpkg.com/feather-icons"></script>
 <title>Dari Mood ke Musik - Waktunya Cari Playlist Baru</title>
 <meta name=next-head-count content=22>
-<style amp-custom>
+<style>
     :root {
         --toastify-color-light: #fff;
         --toastify-color-dark: #121212;
@@ -944,10 +944,6 @@
         font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji
     }
 
-    body {
-        line-height: inherit
-    }
-
     a {
         text-decoration: inherit
     }
@@ -1606,16 +1602,9 @@
         --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color)
     }
 
-    body,
-    html {
-        max-width: 100%
-    }
-
+    html,
     body {
-        margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale
+        max-width: 100%
     }
 
     :root {
@@ -1678,6 +1667,144 @@
             padding: 1.5rem
         }
     }
+
+    /* Player Styles */
+    .player {
+        width: 70%;
+        /* Responsive width */
+        max-width: 600px;
+        /* Max width */
+        height: auto;
+        /* Auto height to fit content */
+        position: relative;
+        background-color: transparent;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        padding-top: 30px;
+        display: flex;
+        flex-direction: column;
+        /* Stack elements vertically */
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        /* Center horizontally */
+        transition: all 0.5s ease;
+        cursor: pointer;
+    }
+
+    .fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        /* Full width of the viewport */
+        height: 100vh;
+        /* Full height of the viewport */
+        z-index: 1000;
+        /* Ensure it appears above other content */
+        object-fit: cover;
+        /* Maintain aspect ratio */
+    }
+
+    /* Song Styles */
+    .song {
+        width: 100%;
+        /* Full width of the player */
+        height: auto;
+        /* Auto height */
+        background-color: #333;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+        margin: 10px 0;
+        /* Spacing between songs */
+    }
+
+    .song:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Album Cover */
+    .album-cover {
+        width: 100%;
+        border-radius: 10px 10px 0 0;
+    }
+
+    /* Info Section */
+    .info {
+        padding: 10px 15px;
+        text-align: center;
+    }
+
+    .info h2 {
+        font-size: 16px;
+        margin: 0;
+    }
+
+    .info p {
+        font-size: 14px;
+        color: #aaa;
+        margin: 5px 0;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+        margin: 10px 15px;
+        display: flex;
+        align-items: center;
+        font-size: 12px;
+        color: #aaa;
+    }
+
+    .progress {
+        flex: 1;
+        height: 4px;
+        background-color: #555;
+        margin: 0 8px;
+        border-radius: 2px;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .progress .progress-bar {
+        width: 60%;
+        /* Adjust this dynamically with JS */
+        height: 100%;
+        background-color: #1db954;
+    }
+
+    /* Time Display */
+    .time {
+        min-width: 30px;
+    }
+
+    /* Controls */
+    .controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px 15px;
+    }
+
+    .controls svg {
+        color: white;
+        cursor: pointer;
+    }
+
+    .song img {
+        height: 50%;
+        /* Set height to 50% of the container */
+        max-height: 300px;
+        /* Optional max height */
+        width: auto;
+        /* Maintain aspect ratio */
+        border-radius: 10px;
+        /* Rounded corners */
+        opacity: 90%;
+
+    }
+    
 </style>
 
 <meta name=referrer content=no-referrer>
@@ -1689,7 +1816,9 @@
         <div class="min-h-screen w-full p-2 lg:p-6 mb-20 md:mb-24 max-w-4xl mx-auto">
             <div class=Toastify></div>
 
+
             <main>
+                <!-- ini navbar -->
                 <div class="navbar bg-base-100 rounded-box shadow-lg mb-4 md:mb-6 max-w-[40rem] mx-auto">
                     <div class=navbar-start><button class="btn btn-square btn-ghost" aria-label="Go to homepage">
                             <div class="relative w-full aspect-square m-1"><span style=box-sizing:border-box;display:block;overflow:hidden;width:initial;height:initial;background:none;opacity:1;border:0;margin:0;padding:0;position:absolute;top:0;left:0;bottom:0;right:0><img alt="DMKM logo" src="f0299a15558aca8b3aea5f48e4c402ca.png" decoding=async data-nimg=fill style=position:absolute;inset:0px;box-sizing:border-box;padding:0px;border:none;margin:auto;display:block;width:0px;height:0px;min-width:100%;max-width:100%;min-height:100%;max-height:100% sizes><noscript><img alt="DMKM logo" sizes="100vw" srcset="/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=640&amp;q=75 640w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=750&amp;q=75 750w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=828&amp;q=75 828w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=1080&amp;q=75 1080w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=1200&amp;q=75 1200w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=1920&amp;q=75 1920w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=2048&amp;q=75 2048w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=3840&amp;q=75 3840w" src="/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=3840&amp;q=75" decoding="async" data-nimg="fill" style="position:absolute;top:0;left:0;bottom:0;right:0;box-sizing:border-box;padding:0;border:none;margin:auto;display:block;width:0;height:0;min-width:100%;max-width:100%;min-height:100%;max-height:100%" loading="lazy"></noscript></span></div>
@@ -1699,12 +1828,33 @@
                     </div>
                     <div class=navbar-end></div>
                 </div>
+                <!-- ini recently played -->
+                <div class="container">
+                    <div class="player">
+                        <h2 style="opacity: 20%;">Terakhir denger apa?</h2>
+                        <div class="slideshow" id="slideshow"></div>
+                        <div class="controls">
+                            <i data-feather="shuffle"></i>
+                            <button id="prev" data-feather="skip-back">Previous</button>
+                            <i data-feather="play-circle" onclick="togglePlay(1)" id="playPauseIcon-1" style="font-size: 30px;"></i>
+                            <button id="next" data-feather="skip-forward">Next</button>
+                            <i data-feather="repeat"></i>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- ini tombol moods -->
                 <div class=text-center>
                     <h1 class="text-4xl md:text-5xl font-bold tracking-tight nunito mb-4">Wkwk pasti bosen sama playlist yang itu itu aja</h1>
                     <div class="text-xl mb-4">Mood nya sekarang gimana?</div>
+
                     <div class="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-6"><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/cheerful>😁 Cheerful</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/reflective>🤔 Reflective</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/gloomy>😕 Gloomy</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/humorous>🤣 Humorous</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/melancholy>😶 Melancholy</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/idyllic>🤩 Idyllic</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/chill>😎 Chill</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/romantic>🥰 Romantic</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/weird>🤨 Weird</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/horny>🤤 Horny</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/sleepy>🥱 Sleepy</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/angry>😡 Angry</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/fearful>😨 Fearful</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/lonely>😢 Lonely</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/tense>😬 Tense</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/thoughtful>🤓 Thoughtful</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/thrill-seeking>🤪 Thrill-seeking</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music//movies/playful>🙃 Playful</a></div>
                 </div>
+
             </main>
+
             <div class="flex flex-row justify-center items-center text-center gap-1 mt-6">
                 <div>Made with 💧 by <a href=https://www.pyjri.com/ target=_blank class="link link-primary nunito" rel=noreferrer>Pyjri</a></div>
                 <div class=avatar>
@@ -1713,7 +1863,95 @@
             </div>
         </div>
     </div>
+    <script type="text/javascript">
+        feather.replace();
 
+        function togglePlay(songId) {
+            const playPauseIcon = document.getElementById('playPauseIcon-' + songId);
+            const isPlaying = playPauseIcon.getAttribute('data-feather') === 'pause-circle';
+            playPauseIcon.setAttribute('data-feather', isPlaying ? 'play-circle' : 'pause-circle');
+            feather.replace();
+        }
+
+        function moveProgress(event, songId) {
+            const progressContainer = document.querySelector(`#progress-bar-${songId}`).parentElement;
+            const progressBar = document.querySelector(`#progress-bar-${songId}`);
+            const clickPosition = event.offsetX / progressContainer.offsetWidth;
+            progressBar.style.width = (clickPosition * 100) + '%';
+        }
+
+        function toggleFullscreen(element) {
+            element.classList.toggle('fullscreen');
+        }
+
+        const songs = [{
+                title: "Song Title 1",
+                artist: "Artist 1",
+                cover: "https://i.scdn.co/image/ab67616d00001e0248c0373785bacfb52daebccc"
+            },
+            {
+                title: "Song Title 2",
+                artist: "Artist 2",
+                cover: "https://i.scdn.co/image/ab67616d0000b2731106d7f32364ad0e5be43659"
+            },
+            {
+                title: "Song Title 3",
+                artist: "Artist 3",
+                cover: "https://i.scdn.co/image/ab67616d0000b2737e45d957b07c99c7c4396ade"
+            },
+        ];
+
+        let currentSongIndex = 0;
+
+        // Function to create the song elements dynamically
+        function createSongElements() {
+            const slideshow = document.getElementById('slideshow');
+            songs.forEach((song, index) => {
+                const songDiv = document.createElement('div');
+                songDiv.className = 'song';
+                songDiv.style.display = index === currentSongIndex ? 'block' : 'none'; // Show only the current song
+
+                songDiv.innerHTML = `
+                <img class="album-cover" src="${song.cover}" alt="Album Cover of ${song.title}">
+                    <div class="info">
+                        <h2 class="song-title">${song.title}</h2>
+                        <p class="song-artist">${song.artist}</p>
+                    </div>
+                    <div class="progress-container">
+                        <span class="time">1:43</span>
+                        <div class="progress" onclick="moveProgress(event, 1)">
+                            <div class="progress-bar" id="progress-bar-1"></div></div>
+                            <span class="time">3:25</span>
+                        </div>
+                    </div>
+                `;
+                slideshow.appendChild(songDiv);
+            });
+        }
+
+        // Function to load the current song
+        function loadSong(index) {
+            const songElements = document.querySelectorAll('.song');
+            songElements.forEach((song, i) => {
+                song.style.display = i === index ? 'block' : 'none'; // Show the current song
+            });
+        }
+
+        // Event listeners for navigation
+        document.getElementById('prev').addEventListener('click', () => {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong(currentSongIndex);
+        });
+
+        document.getElementById('next').addEventListener('click', () => {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            loadSong(currentSongIndex);
+        });
+
+        // Create song elements and load the first song on page load
+        createSongElements();
+        loadSong(currentSongIndex);
+    </script>
 </body>
 
 </html>
