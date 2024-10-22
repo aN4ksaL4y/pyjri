@@ -1148,12 +1148,12 @@ main {
         justify-content: flex-end
     }
 }
-body {
+/* body {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(to right, #ff7e5f, #feb47b);
     color: #ffffff;
     padding: 20px;
-}
+} */
 
 h1,
 h2 {
