@@ -74,6 +74,8 @@ h5 .card-title {
 .text-info {
     color: var(--primary-color);
     margin-top: 10px;
+    margin-right: 10px;
+    margin-left: 10px;
 }
 
 .accordion {

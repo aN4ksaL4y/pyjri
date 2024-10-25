@@ -51,8 +51,21 @@ function add_result(item) {
     card.appendChild(card_body);
 
     card.addEventListener("click", function() {
-        document.querySelector("#id").value = item.id;
-        window.scrollTo(0, 0);
+        const idInput = document.querySelector("#id");
+        idInput.value = item.id; // Fill the IMDb ID input
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // Smooth scroll to the top
+    
+        // Highlight the input field
+        idInput.classList.add("highlight"); // Add a highlight class
+        setTimeout(() => idInput.classList.remove("highlight"), 2000); // Remove highlight after 2 seconds
+    
+        // Toggle fire effect on the submit button
+        const submitButton = document.querySelector(".btn-primary");
+        submitButton.classList.add("btn-fire"); // Add fire effect
+        submitButton.innerHTML = "Nonton 🔥";
+        setTimeout(() => {
+            submitButton.classList.remove("btn-fire"); // Remove fire effect after 2 seconds
+        }, 5000);
     });
 
     results.appendChild(card);
