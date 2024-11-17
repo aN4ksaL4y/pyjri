@@ -116,9 +116,9 @@ function get_iframe() {
     var title;
 
     if (season && episode) {
-        iframe.src = `https://multiembed.mov/?video_id=${id}&s=${season}&e=${episode}`;
+        iframe.src = `https://vidsrc.me/embed/${id}&s=${season}&e=${episode}`;
     } else {
-        iframe.src = `https://multiembed.mov/?video_id=${id}`;
+        iframe.src = `https://vidsrc.me/embed/${id}`;
     }
 
     jQuery.ajax({
