@@ -341,35 +341,57 @@ function renderSongsInFolder(folderName) {
 async function createSongElements() {
     const rawSongsFromFirebase = await fetchAllSongsData(); // Fetch ALL songs from Firebase
 
-    // 1. Prepare songs for the main slideshow (top 5 playable from "come away with me")
-    const comeAwayWithMeSongsMeta = rawSongsFromFirebase
-        .filter(item => item.name.startsWith('come away with me/'))
-        .map(item => {
-            const { song_name, artist_name } = parseSongName(item.name);
-            return {
-                song_name: song_name,
-                artist_name: artist_name,
-                // Using a generic placeholder image as cover_image is not in the provided JSON
-                cover_image: `https://placehold.co/150x150/1DB954/white?text=${song_name.substring(0,2)}`,
-                audio_url: '' // Will be overridden by playableSongUrls
-            };
-        });
+    // Create a map of raw songs by their full name (path) for easy lookup
+    const rawSongsMap = new Map(rawSongsFromFirebase.map(item => [item.name, item]));
 
-    // Assign the filtered and processed songs to songsArray for the main player
-    songsArray = comeAwayWithMeSongsMeta;
+    // 1. Prepare songs for the main slideshow (top 5 playable)
+    // We will build songsArray directly from playableSongUrls and match metadata
+    songsArray = [];
+    for (const playableUrl of playableSongUrls) {
+        // Extract the path part from the playable URL
+        const urlParts = playableUrl.split('/o/');
+        if (urlParts.length > 1) {
+            let encodedPath = urlParts[1].split('?')[0]; // Get the encoded path
+            let decodedPath = decodeURIComponent(encodedPath); // Decode it
 
-    // Override audio_url for the first MAX_PLAYABLE_SONGS with the provided URLs
-    for (let i = 0; i < Math.min(songsArray.length, MAX_PLAYABLE_SONGS); i++) {
-        if (playableSongUrls[i]) {
-            songsArray[i].audio_url = playableSongUrls[i];
-        } else {
-            songsArray[i].audio_url = ''; // Fallback if URL not provided for a slot
+            const matchingRawSong = rawSongsMap.get(decodedPath);
+
+            if (matchingRawSong) {
+                const { song_name, artist_name } = parseSongName(matchingRawSong.name);
+                songsArray.push({
+                    song_name: song_name,
+                    artist_name: artist_name,
+                    cover_image: `https://placehold.co/150x150/1DB954/white?text=${song_name.substring(0,2)}`,
+                    audio_url: playableUrl, // Use the provided playable URL
+                    is_playable: true // These are explicitly playable
+                });
+            } else {
+                // Fallback if a playable URL doesn't match any raw song (shouldn't happen if URLs are correct)
+                console.warn(`Metadata not found for playable URL: ${playableUrl}`);
+                songsArray.push({
+                    song_name: 'Unknown Song',
+                    artist_name: 'Unknown Artist',
+                    cover_image: `https://placehold.co/150x150/1DB954/white?text=NA`,
+                    audio_url: playableUrl,
+                    is_playable: true
+                });
+            }
         }
     }
-    // Ensure songs beyond the playable limit in songsArray are not playable
-    for (let i = MAX_PLAYABLE_SONGS; i < songsArray.length; i++) {
-        songsArray[i].audio_url = '';
+
+    // Ensure songsArray has exactly MAX_PLAYABLE_SONGS, fill with placeholders if needed
+    while (songsArray.length < MAX_PLAYABLE_SONGS) {
+        songsArray.push({
+            song_name: `Placeholder Song ${songsArray.length + 1}`,
+            artist_name: 'Placeholder Artist',
+            cover_image: `https://placehold.co/150x150/1DB954/white?text=NA`,
+            audio_url: '',
+            is_playable: false
+        });
     }
+    // Trim if by some chance there are more than MAX_PLAYABLE_SONGS
+    songsArray = songsArray.slice(0, MAX_PLAYABLE_SONGS);
+
 
     // 2. Populate the slideshow (main player)
     const slideshow = document.getElementById('slideshow');
@@ -379,7 +401,7 @@ async function createSongElements() {
         songDiv.className = 'song';
         songDiv.style.display = index === currentSongIndex ? 'flex' : 'none';
 
-        const isPlayableInSlideshow = (index < MAX_PLAYABLE_SONGS && song.audio_url);
+        const isPlayableInSlideshow = song.is_playable; // Use the is_playable flag from the song object
         // Display progress bar only for playable songs in the slideshow
         const progressBarHtml = isPlayableInSlideshow ? `
             <div class="progress-container">
@@ -409,22 +431,15 @@ async function createSongElements() {
 
         const directFirebaseUrl = `${FIREBASE_STORAGE_BASE_URL}${item.bucket}/o/${encodeURIComponent(item.name)}?alt=media`;
 
-        let isTopPlayable = false;
-        let audioUrlForTrack = '';
-        for (let i = 0; i < MAX_PLAYABLE_SONGS; i++) {
-            if (songsArray[i] && songsArray[i].song_name === song_name && songsArray[i].artist_name === artist_name && folderName === 'come away with me') {
-                isTopPlayable = true;
-                audioUrlForTrack = songsArray[i].audio_url;
-                break;
-            }
-        }
+        // Determine if this song is one of the top 5 playable songs for the track list
+        let isTopPlayable = playableSongUrls.includes(directFirebaseUrl); // Check if its URL is in the playable list
 
         const songObj = {
             song_name: song_name,
             artist_name: artist_name,
             folder_name: folderName,
             cover_image: `https://placehold.co/50x50/333/white?text=${song_name.substring(0,2)}`,
-            audio_url: audioUrlForTrack,
+            audio_url: isTopPlayable ? directFirebaseUrl : '', // Only set audio_url if playable
             is_playable: isTopPlayable,
             direct_url: directFirebaseUrl
         };
@@ -472,7 +487,7 @@ function loadSong(index) {
 
     const songData = songsArray[index];
     // Only create Audio object if the song is playable (within limit and has audio_url)
-    if (index < MAX_PLAYABLE_SONGS && songData && songData.audio_url) {
+    if (songData && songData.is_playable && songData.audio_url) { // Use songData.is_playable directly
         currentAudio = new Audio(songData.audio_url);
 
         // Update progress bar
