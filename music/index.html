@@ -1,95 +1,114 @@
 <!DOCTYPE html>
-<html amp lang=id>
-<meta charset=utf-8>
-<meta name=viewport content="width=device-width, initial-scale=1">
-<meta name=theme-color content=#D23838>
-<meta name=description content="Apakah kamu merasa jenuh dengan playlist yang monoton? oh ok.">
-<meta property=og:type content=website>
-<meta property=og:url content=https://www.pyjri.com/music/ />
-<meta property=og:title content="Dari Mood ke Musik - Waktunya Cari Playlist Baru">
-<meta property=og:description content="Apakah kamu merasa jenuh dengan playlist yang monoton? oh ok.">
-<meta property=twitter:card content=summary_large_image>
-<meta property=twitter:url content=https://www.pyjri.com/music/ />
-<meta property=twitter:title content="Dari Mood ke Musik - Waktunya Cari Playlist Baru">
-<meta property=twitter:description content="Apakah kamu merasa jenuh dengan playlist yang monoton? oh ok.">
-<link href="https://www.pyjri.com/favicon.ico" rel="icon" type="image/x-icon">
-<link rel="shortcut icon" type="image/x-icon" href="https://www.pyjri.com/favicon.ico">
-<link rel="icon" type="image/png" href="https://www.pyjri.com/favicon-16x16.png" sizes="16x16">
-<link rel="icon" type="image/png" href="https://www.pyjri.com/favicon-32x32.png" sizes="32x32">
-<link rel="icon" type="image/png" href="https://www.pyjri.com/android-chrome-192x192.png" sizes="192x192">
-<link rel="icon" type="image/png" href="https://www.pyjri.com/android-chrome-512x512.png" sizes="512x512">
-<link rel="apple-touch-icon" href="https://www.pyjri.com/apple-touch-icon.png">
-<script src="https://unpkg.com/feather-icons"></script>
-<title>Dari Mood ke Musik - Waktunya Cari Playlist Baru</title>
-<meta name=next-head-count content=22>
-<link rel="stylesheet" href="index.css">
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#D23838">
+    <meta name="description" content="Playlist Den.">
+    <title>Playlist Den</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Feather Icons CDN -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="index.css">
+    <!-- Font: Inter (Tailwind default is sans-serif, often Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Ensure sections can be hidden/shown */
+        .hidden-section {
+            display: none;
+        }
 
-<meta name=referrer content=no-referrer>
-<link rel=canonical href=https://www.pyjri.com/music/ />
+        /* Blinking animation for the button */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
 
+        .blink-animation {
+            animation: blink 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+    <div id="__next" class="w-full max-w-4xl mx-auto">
+        <main class="flex flex-col items-center">
 
-<body>
-    <div id=__next data-reactroot>
-        <div class="min-h-screen w-full p-2 lg:p-6 mb-20 md:mb-24 max-w-4xl mx-auto">
-            <div class=Toastify></div>
-            <main>
-
-                <!-- ini navbar -->
-                <div class="navbar bg-base-100 rounded-box shadow-lg mb-4 md:mb-6 max-w-[40rem] mx-auto">
-                    <div class=navbar-start><button class="btn btn-square btn-ghost" aria-label="Go to homepage">
-                            <div class="relative w-full aspect-square m-1"><span style=box-sizing:border-box;display:block;overflow:hidden;width:initial;height:initial;background:none;opacity:1;border:0;margin:0;padding:0;position:absolute;top:0;left:0;bottom:0;right:0><img alt="DMKM logo" src="f0299a15558aca8b3aea5f48e4c402ca.png" decoding=async data-nimg=fill style=position:absolute;inset:0px;box-sizing:border-box;padding:0px;border:none;margin:auto;display:block;width:0px;height:0px;min-width:100%;max-width:100%;min-height:100%;max-height:100% sizes><noscript><img alt="DMKM logo" sizes="100vw" srcset="/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=640&amp;q=75 640w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=750&amp;q=75 750w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=828&amp;q=75 828w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=1080&amp;q=75 1080w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=1200&amp;q=75 1200w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=1920&amp;q=75 1920w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=2048&amp;q=75 2048w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=3840&amp;q=75 3840w" src="/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo512.14e7e857.png&amp;w=3840&amp;q=75" decoding="async" data-nimg="fill" style="position:absolute;top:0;left:0;bottom:0;right:0;box-sizing:border-box;padding:0;border:none;margin:auto;display:block;width:0;height:0;min-width:100%;max-width:100%;min-height:100%;max-height:100%" loading="lazy"></noscript></span></div>
-                        </button></div>
-                    <div class=navbar-center>
-                        <div class="nunito text-center text-xl">Dari Mood Ke Music</div>
-                    </div>
-                    <div class=navbar-end></div>
-                </div>
-
-                <!-- ini recently played -->
-                <div class="container">
-                    <div class="player">
-                        <h3 style="opacity: 20%;">my spotify history</h3>
-                        <div class="slideshow" id="slideshow"></div>
-                        <div class="controls">
-                            <i data-feather="shuffle"></i>
-                            <button id="prev" data-feather="skip-back">Previous</button>
-                            <i data-feather="play-circle" onclick="togglePlay(1)" id="playPauseIcon-1" style="font-size: 30px;"></i>
-                            <button id="next" data-feather="skip-forward">Next</button>
-                            <i data-feather="repeat"></i>
-                        </div>
-
-                    </div>
-
-                    <!-- Track List -->
-                    <div class="track-list" id="track-list"></div>
-
-                </div>
-
-                <!-- ini tombol moods -->
-                <div class="container flex justify-center">
-                    <button class="arrow-button" id="toggleButton">
-                        <!-- Embed your SVG code here -->
-                        <img src="down-arrow-svgrepo-com.svg" alt="Down Arrow" />
+            <!-- Navbar (remains consistent) -->
+            <!-- <div class="navbar bg-gray-800 rounded-box shadow-xl mb-6 w-full max-w-[40rem]">
+                <div class="navbar-start">
+                    <button class="btn btn-square btn-ghost" aria-label="Go to homepage">
+                        <img alt="PL logo" src="https://placehold.co/40x40/1DB954/white?text=PL" class="w-10 h-10 rounded-full">
                     </button>
-                    <div class=text-center id="content" style="display: none;">
-                        <h1 class="text-4xl md:text-5xl font-bold tracking-tight nunito mb-4">Wkwk pasti bosen sama playlist yang itu itu aja</h1>
-                        <div class="text-xl mb-4">Mood nya sekarang gimana?</div>
+                </div>
+                <div class="navbar-center">
+                    <div class="text-center text-2xl font-semibold text-green-400">Playlist Den</div>
+                </div>
+                <div class="navbar-end"></div>
+            </div> -->
 
-                        <div class="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-6"><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/cheerful>😁 Cheerful</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/reflective>🤔 Reflective</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/gloomy>😕 Gloomy</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/humorous>🤣 Humorous</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/melancholy>😶 Melancholy</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/idyllic>🤩 Idyllic</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/chill>😎 Chill</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/romantic>🥰 Romantic</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/weird>🤨 Weird</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/horny>🤤 Horny</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/sleepy>🥱 Sleepy</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/angry>😡 Angry</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/fearful>😨 Fearful</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/lonely>😢 Lonely</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/tense>😬 Tense</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/thoughtful>🤓 Thoughtful</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/thrill-seeking>🤪 Thrill-seeking</a><a class="btn md:btn-lg border-[1.5px] border-primary hover:btn-primary btn-outline nunito" href=https://www.pyjri.com/music/playful>🙃 Playful</a></div>
-                    </div>
+            <!-- Now Playing Section -->
+            <div id="now-playing-section" class="container bg-gray-800 rounded-lg shadow-xl p-6 mb-8 w-full max-w-xl hidden-section">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg text-gray-400 text-center flex-grow">Current Favs</h3>
+                    <button id="goToFoldersBtn" class="text-green-400 hover:text-green-300 transition-colors" aria-label="Go to Folders">
+                        <i data-feather="folder" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div class="slideshow relative overflow-hidden rounded-lg mb-6" id="slideshow">
+                    <!-- Song elements will be dynamically inserted here -->
                 </div>
 
-            </main>
-
-            <div class="flex flex-row justify-center items-center text-center gap-1 mt-6">
-                <div>Made with 💧 by <a href=https://www.pyjri.com/ target=_blank class="link link-primary nunito" rel=noreferrer>Pyjri</a></div>
-                <div class=avatar>
-                    <div class="relative w-8 rounded-full"><span style=box-sizing:border-box;display:block;overflow:hidden;width:initial;height:initial;background:none;opacity:1;border:0;margin:0;padding:0;position:absolute;top:0;left:0;bottom:0;right:0><img alt="Johny at Pyjri" src="https://www.pyjri.com/favicon.ico" decoding=async data-nimg=fill style=position:absolute;inset:0px;box-sizing:border-box;padding:0px;border:none;margin:auto;display:block;width:0px;height:0px;min-width:100%;max-width:100%;min-height:100%;max-height:100% sizes><noscript><img alt="Johny at Pyjri" sizes="100vw" srcset="/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fmarc.4bac036d.png&amp;w=640&amp;q=75 640w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fmarc.4bac036d.png&amp;w=750&amp;q=75 750w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fmarc.4bac036d.png&amp;w=828&amp;q=75 828w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fmarc.4bac036d.png&amp;w=1080&amp;q=75 1080w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fmarc.4bac036d.png&amp;w=1200&amp;q=75 1200w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fmarc.4bac036d.png&amp;w=1920&amp;q=75 1920w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fmarc.4bac036d.png&amp;w=2048&amp;q=75 2048w, /_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fmarc.4bac036d.png&amp;w=3840&amp;q=75 3840w" src="/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fmarc.4bac036d.png&amp;w=3840&amp;q=75" decoding="async" data-nimg="fill" style="position:absolute;top:0;left:0;bottom:0;right:0;box-sizing:border-box;padding:0;border:none;margin:auto;display:block;width:0;height:0;min-width:100%;max-width:100%;min-height:100%;max-height:100%" loading="lazy"></noscript></span></div>
+                <div class="controls flex items-center justify-center gap-6">
+                    <button class="text-green-400 hover:text-green-300 transition-colors" aria-label="Shuffle">
+                        <i data-feather="shuffle" class="w-6 h-6"></i>
+                    </button>
+                    <button id="prev" class="text-green-400 hover:text-green-300 transition-colors" aria-label="Previous Song">
+                        <i data-feather="skip-back" class="w-8 h-8"></i>
+                    </button>
+                    <button id="playPauseButton" class="text-green-400 hover:text-green-300 transition-colors" aria-label="Play/Pause">
+                        <i data-feather="play-circle" id="playPauseIcon" class="w-10 h-10"></i>
+                    </button>
+                    <button id="next" class="text-green-400 hover:text-green-300 transition-colors" aria-label="Next Song">
+                        <i data-feather="skip-forward" class="w-8 h-8"></i>
+                    </button>
+                    <button class="text-green-400 hover:text-green-300 transition-colors" aria-label="Repeat">
+                        <i data-feather="repeat" class="w-6 h-6"></i>
+                    </button>
                 </div>
             </div>
-        </div>
+
+            <!-- Folders Section (Explore Playlists) -->
+            <div id="folders-section" class="container bg-gray-800 rounded-lg shadow-xl p-6 mb-8 w-full max-w-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white flex-grow text-center">Playlists DD</h1>
+                    <button id="goToNowPlayingBtn" class="text-green-400 hover:text-green-300 transition-colors" aria-label="Go to Now Playing">
+                        <i data-feather="disc" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div id="playlist-browser-content" class="w-full">
+                    <!-- Dynamic content (folders or songs) will be rendered here by JavaScript -->
+                </div>
+            </div>
+
+            <footer class="flex flex-row justify-center items-center text-center gap-2 mt-10 text-gray-400">
+                <div>Made with 💧 by <a href="https://www.pyjri.com/" target="_blank" class="text-green-400 hover:underline transition-colors" rel="noreferrer">Pyjri</a></div>
+                <div class="avatar">
+                    <div class="w-8 rounded-full">
+                        <img alt="Johny at Pyjri" src="https://www.pyjri.com/favicon.ico" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </footer>
+        </main>
     </div>
+    <!-- Message area for toast notifications -->
+    <div id="message-area" class="hidden"></div>
     <script src="index.js"></script>
 </body>
-
 </html>
