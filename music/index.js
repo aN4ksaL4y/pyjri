@@ -10,9 +10,9 @@ let currentView = 'folders'; // Tracks the currently active view: 'nowPlaying' o
 
 // Specific list of playable song URLs provided by the user (string-only)
 const playableSongUrls = [
-    "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/come%20away%20with%20me%2FAm%20I%20Blue%20%5BUubRkeu64Hw%5D.mp3?alt=media&token=3cdfbe98-a749-4aac-9ac8-ec3c31242fdb",
-    "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/come%20away%20with%20me%2FMoonlight%20Serenade%20%5BcE2fuGmVv1Q%5D.mp3?alt=media&token=3d854891-4c6a-403d-9b35-6f88019ce952",
     "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/come%20away%20with%20me%2FFrom%20Paris%20With%20Love%20%5BMre9BZnYe4w%5D.mp3?alt=media&token=69adb3b0-fae6-473c-b7a6-c76bb294fb9a",
+    "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/blues%20man%20radio%2FBlues%20Man%20%5BeDuKJhnF2oU%5D.mp3?alt=media",
+    "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/come%20away%20with%20me%2FYou%20Don't%20Know%20Me%20%5BRKuCICP6oDE%5D.mp3?alt=media",
     "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/come%20away%20with%20me%2FDream%20a%20Little%20Dream%20of%20Me%20%5BTyFMfLWNZ2I%5D.mp3?alt=media&token=49776bb8-41a5-468b-8aba-c2928360e1c2",
     "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/come%20away%20with%20me%2FCome%20Away%20With%20Me%20%5BmvLDrx3YQ4Q%5D.mp3?alt=media&token=0fdac2dc-a75d-4398-a272-5f8ba7d5665f"
 ];
