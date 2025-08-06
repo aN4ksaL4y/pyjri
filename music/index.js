@@ -8,7 +8,7 @@ const MAX_PLAYABLE_SONGS = 5; // Define the limit for playable songs
 let allGroupedTracks = {}; // To store all songs grouped by folder for the "Explore Playlists" section
 let currentView = 'folders'; // Tracks the currently active view: 'nowPlaying' or 'folders'
 
-// Specific list of playable song URLs provided by the user
+// Specific list of playable song URLs provided by the user (string-only)
 const playableSongUrls = [
     "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/come%20away%20with%20me%2FAm%20I%20Blue%20%5BUubRkeu64Hw%5D.mp3?alt=media&token=3cdfbe98-a749-4aac-9ac8-ec3c31242fdb",
     "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/come%20away%20with%20me%2FMoonlight%20Serenade%20%5BcE2fuGmVv1Q%5D.mp3?alt=media&token=3d854891-4c6a-403d-9b35-6f88019ce952",
@@ -312,7 +312,8 @@ function renderSongsInFolder(folderName) {
 
         trackItem.addEventListener('click', () => {
             if (song.is_playable) {
-                const mainSongsArrayIndex = songsArray.findIndex(s => s.song_name === song.song_name && s.artist_name === song.artist_name);
+                // Find the index of this playable song in the main songsArray
+                const mainSongsArrayIndex = songsArray.findIndex(s => s.audio_url === song.audio_url);
                 if (mainSongsArrayIndex !== -1) {
                     currentSongIndex = mainSongsArrayIndex;
                     loadSong(currentSongIndex);
@@ -341,42 +342,26 @@ function renderSongsInFolder(folderName) {
 async function createSongElements() {
     const rawSongsFromFirebase = await fetchAllSongsData(); // Fetch ALL songs from Firebase
 
-    // Create a map of raw songs by their full name (path) for easy lookup
-    const rawSongsMap = new Map(rawSongsFromFirebase.map(item => [item.name, item]));
-
     // 1. Prepare songs for the main slideshow (top 5 playable)
-    // We will build songsArray directly from playableSongUrls and match metadata
     songsArray = [];
     for (const playableUrl of playableSongUrls) {
         // Extract the path part from the playable URL
         const urlParts = playableUrl.split('/o/');
+        let decodedPath = '';
         if (urlParts.length > 1) {
             let encodedPath = urlParts[1].split('?')[0]; // Get the encoded path
-            let decodedPath = decodeURIComponent(encodedPath); // Decode it
-
-            const matchingRawSong = rawSongsMap.get(decodedPath);
-
-            if (matchingRawSong) {
-                const { song_name, artist_name } = parseSongName(matchingRawSong.name);
-                songsArray.push({
-                    song_name: song_name,
-                    artist_name: artist_name,
-                    cover_image: `https://placehold.co/150x150/1DB954/white?text=${song_name.substring(0,2)}`,
-                    audio_url: playableUrl, // Use the provided playable URL
-                    is_playable: true // These are explicitly playable
-                });
-            } else {
-                // Fallback if a playable URL doesn't match any raw song (shouldn't happen if URLs are correct)
-                console.warn(`Metadata not found for playable URL: ${playableUrl}`);
-                songsArray.push({
-                    song_name: 'Unknown Song',
-                    artist_name: 'Unknown Artist',
-                    cover_image: `https://placehold.co/150x150/1DB954/white?text=NA`,
-                    audio_url: playableUrl,
-                    is_playable: true
-                });
-            }
+            decodedPath = decodeURIComponent(encodedPath); // Decode it
         }
+        
+        const { song_name, artist_name } = parseSongName(decodedPath); // Parse from the decoded path
+
+        songsArray.push({
+            song_name: song_name,
+            artist_name: artist_name,
+            cover_image: `https://placehold.co/150x150/1DB954/white?text=${song_name.substring(0,2)}`,
+            audio_url: playableUrl,
+            is_playable: true // These are explicitly playable
+        });
     }
 
     // Ensure songsArray has exactly MAX_PLAYABLE_SONGS, fill with placeholders if needed
@@ -427,7 +412,7 @@ async function createSongElements() {
     rawSongsFromFirebase.forEach(item => {
         const parts = item.name.split('/');
         const folderName = parts[0];
-        const { song_name, artist_name } = parseSongName(item.name);
+        const { song_name, artist_name } = parseSongName(item.name); // Use parseSongName for general songs
 
         const directFirebaseUrl = `${FIREBASE_STORAGE_BASE_URL}${item.bucket}/o/${encodeURIComponent(item.name)}?alt=media`;
 
@@ -475,6 +460,11 @@ function loadSong(index) {
     const currentSongElement = songElements[index];
     if (currentSongElement) {
         currentSongElement.classList.add('active');
+        // Update the song title and artist in the "Now Playing" section
+        currentSongElement.querySelector('.song-title').textContent = songsArray[index].song_name;
+        currentSongElement.querySelector('.song-artist').textContent = songsArray[index].artist_name;
+        currentSongElement.querySelector('.album-cover').src = songsArray[index].cover_image;
+        currentSongElement.querySelector('.album-cover').alt = `Album Cover of ${songsArray[index].song_name}`;
     }
 
     // Stop current audio if playing
