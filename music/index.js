@@ -2,14 +2,15 @@ feather.replace(); // Initialize Feather icons on page load
 
 // Global variables for song management
 let currentSongIndex = 0;
-let songsArray = []; // Stores songs for the main player slideshow (first 5 playable)
+let mainPlayableSongs = []; // Stores the initial 5 playable songs for the main player slideshow
+let currentPlaylist = []; // Stores the currently active playlist (either mainPlayableSongs or a folder's songs)
 let currentAudio = null; // To hold the current playing audio object
-const MAX_PLAYABLE_SONGS = 5; // Define the limit for playable songs
+const MAX_PLAYABLE_SONGS = 5; // Define the limit for initial playable songs
 let allGroupedTracks = {}; // To store all songs grouped by folder for the "Explore Playlists" section
 let currentView = 'folders'; // Tracks the currently active view: 'nowPlaying' or 'folders'
 
 // Specific list of playable song URLs provided by the user (string-only)
-const playableSongUrls = [
+const laguFavorit = [
     "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/come%20away%20with%20me%2FFrom%20Paris%20With%20Love%20%5BMre9BZnYe4w%5D.mp3?alt=media&token=69adb3b0-fae6-473c-b7a6-c76bb294fb9a",
     "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/blues%20man%20radio%2FBlues%20Man%20%5BeDuKJhnF2oU%5D.mp3?alt=media",
     "https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/come%20away%20with%20me%2FYou%20Don't%20Know%20Me%20%5BRKuCICP6oDE%5D.mp3?alt=media",
@@ -18,7 +19,7 @@ const playableSongUrls = [
 ];
 
 // Base URL for Firebase Storage to construct full audio URLs
-const FIREBASE_STORAGE_BASE_URL = 'https://firebasestorage.googleapis.com/v0/b/';
+const FIREBASE_STORAGE_BASE_URL = 'https://firebasestorage.googleapis.com/v0/b/playlistden-103db.appspot.com/o/';
 
 /**
  * Fetches the full song listing from the Firebase Storage bucket.
@@ -65,74 +66,58 @@ function parseSongName(name) {
 function togglePlay() {
     const playPauseIcon = document.getElementById('playPauseIcon');
     const isPlaying = playPauseIcon.getAttribute('data-feather') === 'pause-circle';
-    const goToNowPlayingBtn = document.getElementById('goToNowPlayingBtn'); // Get the button
+    const goToNowPlayingBtn = document.getElementById('goToNowPlayingBtn');
 
-    // Check if the current song is within the playable limit and has a valid audio URL
-    if (currentSongIndex < MAX_PLAYABLE_SONGS && songsArray[currentSongIndex] && songsArray[currentSongIndex].audio_url) {
+    // Check if there is a current audio object and if it has a valid source
+    if (currentAudio && currentAudio.src) {
         if (isPlaying) {
-            // Pause the song
-            if (currentAudio) {
-                currentAudio.pause();
-            }
+            currentAudio.pause();
             playPauseIcon.setAttribute('data-feather', 'play-circle');
-            // Stop blinking when paused
             if (goToNowPlayingBtn) {
                 goToNowPlayingBtn.classList.remove('blink-animation');
             }
         } else {
-            // Play the song
-            if (currentAudio) {
-                currentAudio.play();
-            } else {
-                // If no song is loaded or playing, load and play the current song
-                loadSong(currentSongIndex);
-                if (currentAudio) { // Check again after loading
-                    currentAudio.play();
-                }
-            }
+            currentAudio.play();
             playPauseIcon.setAttribute('data-feather', 'pause-circle');
-            // Start blinking when playing, if not already in "Now Playing" view
+            if (goToNowPlayingBtn && currentView !== 'nowPlaying') {
+                goToNowPlayingBtn.classList.add('blink-animation');
+            }
+        }
+    } else if (currentPlaylist.length > 0) {
+        // If no audio is loaded but a playlist exists, load and play the current song
+        loadSong(currentSongIndex); // currentSongIndex will be relative to currentPlaylist
+        if (currentAudio) {
+            currentAudio.play();
+            playPauseIcon.setAttribute('data-feather', 'pause-circle');
             if (goToNowPlayingBtn && currentView !== 'nowPlaying') {
                 goToNowPlayingBtn.classList.add('blink-animation');
             }
         }
     } else {
-        // If song is not playable, ensure icon is 'play-circle' and do not attempt playback
+        // No playable songs available
         playPauseIcon.setAttribute('data-feather', 'play-circle');
-        // Ensure no blinking for non-playable songs
         if (goToNowPlayingBtn) {
             goToNowPlayingBtn.classList.remove('blink-animation');
         }
-        console.warn(`Song at index ${currentSongIndex} is not playable (beyond limit or no audio URL).`);
+        showMessage('No song available to play.', 2000);
     }
-    feather.replace(); // Re-render feather icons after changing attributes
+    feather.replace();
 }
 
 /**
  * Moves the progress bar based on the click position.
- * This function currently only updates the visual width of the progress bar.
- * For actual audio seeking, an Audio object would be needed.
+ * This function updates the actual audio seeking.
  * @param {Event} event - The click event.
- * @param {number} songIndex - The index of the song.
  */
-function moveProgress(event, songIndex) {
-    // Only allow progress bar interaction for playable songs
-    if (songIndex >= MAX_PLAYABLE_SONGS || !songsArray[songIndex] || !songsArray[songIndex].audio_url) {
-        console.warn(`Progress bar interaction disabled for non-playable song at index ${songIndex}.`);
+function moveProgress(event) {
+    if (!currentAudio) {
+        console.warn('No audio loaded to seek.');
         return;
     }
 
-    const progressBar = document.querySelector(`#progress-bar-${songIndex}`);
-    if (!progressBar) return; // Ensure the progress bar exists
-
-    const progressContainer = progressBar.parentElement;
-    const clickPosition = event.offsetX / progressContainer.offsetWidth;
-    progressBar.style.width = (clickPosition * 100) + '%';
-
-    // In a real player, you would also seek the audio here:
-    if (currentAudio && currentSongIndex === songIndex) {
-        currentAudio.currentTime = currentAudio.duration * clickPosition;
-    }
+    const progressBarContainer = event.currentTarget; // The div with class 'progress'
+    const clickPosition = event.offsetX / progressBarContainer.offsetWidth;
+    currentAudio.currentTime = currentAudio.duration * clickPosition;
 }
 
 /**
@@ -213,6 +198,10 @@ function showView(viewName) {
         nowPlayingSection.classList.add('hidden-section');
         foldersSection.classList.remove('hidden-section');
         currentView = 'folders';
+        // Reset currentPlaylist to mainPlayableSongs when returning to folders view
+        currentPlaylist = [...mainPlayableSongs];
+        currentSongIndex = 0; // Reset index for the main playlist
+        loadSong(currentSongIndex); // Reload the first song of main playlist
         renderFolderList(); // Ensure folders are rendered when switching to this view
 
         // If a song is playing, make the 'Go to Now Playing' button blink
@@ -239,14 +228,11 @@ function renderFolderList() {
 
     sortedFolderNames.forEach(folderName => {
         const folderButton = document.createElement('button');
-        // Added w-32 h-32 for square appearance, and flex-col for stacking icon/text
-        // Added overflow-hidden to clip text if too long
         folderButton.className = 'btn border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition-all duration-200 ease-in-out rounded-xl py-3 px-4 text-lg font-semibold shadow-md flex flex-col items-center justify-center w-32 h-32 overflow-hidden';
         
         // Format folder name for display and handle overflow
         const displayFolderName = folderName.replace(/radio$/, '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
         const folderNameSpan = document.createElement('span');
-        // Added block, w-full, overflow-hidden, text-ellipsis, whitespace-nowrap for text clipping
         folderNameSpan.className = 'block w-full overflow-hidden text-ellipsis whitespace-nowrap text-center';
         folderNameSpan.textContent = displayFolderName;
 
@@ -266,11 +252,15 @@ function renderFolderList() {
 
 /**
  * Renders the songs within a specific folder in the "Explore Playlists" section.
+ * Also sets the currentPlaylist to the songs of this folder.
  * @param {string} folderName - The name of the folder to display songs from.
  */
 function renderSongsInFolder(folderName) {
     const playlistBrowserContent = document.getElementById('playlist-browser-content');
     playlistBrowserContent.innerHTML = ''; // Clear existing content
+
+    // Set currentPlaylist to the songs of this folder
+    currentPlaylist = allGroupedTracks[folderName] || [];
 
     // Back button
     const backButton = document.createElement('button');
@@ -289,48 +279,45 @@ function renderSongsInFolder(folderName) {
     songsContainer.className = 'bg-gray-700 rounded-md p-2 mb-4 shadow-inner';
     playlistBrowserContent.appendChild(songsContainer);
 
-    const songsInFolder = allGroupedTracks[folderName] || [];
-    songsInFolder.forEach(song => {
-        const trackItem = document.createElement('div');
-        trackItem.className = 'track-item flex items-center justify-between p-2 rounded-md hover:bg-gray-600 transition-colors cursor-pointer';
+    // Ensure we have songs to display
+    if (currentPlaylist.length === 0) {
+        const noSongsMessage = document.createElement('p');
+        noSongsMessage.className = 'text-center text-gray-400 p-4';
+        noSongsMessage.textContent = 'No songs found in this folder.';
+        songsContainer.appendChild(noSongsMessage);
+    } else {
+        currentPlaylist.forEach((song, index) => {
+            const trackItem = document.createElement('div');
+            trackItem.className = 'track-item flex items-center justify-between p-2 rounded-md hover:bg-gray-600 transition-colors cursor-pointer';
 
-        const playIcon = song.is_playable ? 'play-circle' : 'info';
-        const iconColorClass = song.is_playable ? 'text-green-400' : 'text-gray-500';
+            const playIcon = 'play-circle'; // All songs from Firebase are now considered playable
+            const iconColorClass = 'text-green-400';
 
-        trackItem.innerHTML = `
-            <div class="track-details flex items-center">
-                <img src="${song.cover_image}" alt="Album Cover of ${song.song_name}" class="w-10 h-10 mr-3 rounded-md object-cover">
-                <div class="track-info">
-                    <h3 class="text-sm font-medium text-gray-100">${song.song_name}</h3>
-                    <p class="text-xs text-gray-400">${song.artist_name}</p>
+            trackItem.innerHTML = `
+                <div class="track-details flex items-center">
+                    <img src="${song.cover_image}" alt="Album Cover of ${song.song_name}" class="w-10 h-10 mr-3 rounded-md object-cover">
+                    <div class="track-info">
+                        <h3 class="text-sm font-medium text-gray-100">${song.song_name}</h3>
+                        <p class="text-xs text-gray-400">${song.artist_name}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="track-icons">
-                <i data-feather="${playIcon}" class="${iconColorClass}"></i>
-            </div>`;
-        songsContainer.appendChild(trackItem);
+                <div class="track-icons">
+                    <i data-feather="${playIcon}" class="${iconColorClass}"></i>
+                </div>`;
+            songsContainer.appendChild(trackItem);
 
-        trackItem.addEventListener('click', () => {
-            if (song.is_playable) {
-                // Find the index of this playable song in the main songsArray
-                const mainSongsArrayIndex = songsArray.findIndex(s => s.audio_url === song.audio_url);
-                if (mainSongsArrayIndex !== -1) {
-                    currentSongIndex = mainSongsArrayIndex;
-                    loadSong(currentSongIndex);
-                    if (currentAudio) {
-                        currentAudio.play();
-                        document.getElementById('playPauseIcon').setAttribute('data-feather', 'pause-circle');
-                        feather.replace();
-                    }
+            trackItem.addEventListener('click', () => {
+                currentSongIndex = index; // Set the current song index to the clicked song within the currentPlaylist
+                loadSong(currentSongIndex);
+                if (currentAudio) {
+                    currentAudio.play();
+                    document.getElementById('playPauseIcon').setAttribute('data-feather', 'pause-circle');
+                    feather.replace();
                 }
                 showView('nowPlaying'); // Switch to now playing when a playable song is clicked
-            } else {
-                // Redirect directly to the song's URL
-                window.open(song.direct_url, '_blank');
-                console.warn(`Redirecting to direct URL for "${song.song_name}": ${song.direct_url}`);
-            }
+            });
         });
-    });
+    }
     feather.replace(); // Re-render icons after adding new elements
 }
 
@@ -343,8 +330,8 @@ async function createSongElements() {
     const rawSongsFromFirebase = await fetchAllSongsData(); // Fetch ALL songs from Firebase
 
     // 1. Prepare songs for the main slideshow (top 5 playable)
-    songsArray = [];
-    for (const playableUrl of playableSongUrls) {
+    mainPlayableSongs = [];
+    for (const playableUrl of laguFavorit) {
         // Extract the path part from the playable URL
         const urlParts = playableUrl.split('/o/');
         let decodedPath = '';
@@ -355,7 +342,7 @@ async function createSongElements() {
         
         const { song_name, artist_name } = parseSongName(decodedPath); // Parse from the decoded path
 
-        songsArray.push({
+        mainPlayableSongs.push({
             song_name: song_name,
             artist_name: artist_name,
             cover_image: `https://placehold.co/150x150/1DB954/white?text=${song_name.substring(0,2)}`,
@@ -364,10 +351,10 @@ async function createSongElements() {
         });
     }
 
-    // Ensure songsArray has exactly MAX_PLAYABLE_SONGS, fill with placeholders if needed
-    while (songsArray.length < MAX_PLAYABLE_SONGS) {
-        songsArray.push({
-            song_name: `Placeholder Song ${songsArray.length + 1}`,
+    // Ensure mainPlayableSongs has exactly MAX_PLAYABLE_SONGS, fill with placeholders if needed
+    while (mainPlayableSongs.length < MAX_PLAYABLE_SONGS) {
+        mainPlayableSongs.push({
+            song_name: `Placeholder Song ${mainPlayableSongs.length + 1}`,
             artist_name: 'Placeholder Artist',
             cover_image: `https://placehold.co/150x150/1DB954/white?text=NA`,
             audio_url: '',
@@ -375,24 +362,27 @@ async function createSongElements() {
         });
     }
     // Trim if by some chance there are more than MAX_PLAYABLE_SONGS
-    songsArray = songsArray.slice(0, MAX_PLAYABLE_SONGS);
+    mainPlayableSongs = mainPlayableSongs.slice(0, MAX_PLAYABLE_SONGS);
+
+    // Set initial currentPlaylist to mainPlayableSongs
+    currentPlaylist = [...mainPlayableSongs];
 
 
-    // 2. Populate the slideshow (main player)
+    // 2. Populate the slideshow (main player) based on currentPlaylist (which is mainPlayableSongs initially)
     const slideshow = document.getElementById('slideshow');
     slideshow.innerHTML = ''; // Clear existing content
-    songsArray.forEach((song, index) => {
+    currentPlaylist.forEach((song, index) => { // Use currentPlaylist here for initial render
         const songDiv = document.createElement('div');
         songDiv.className = 'song';
         songDiv.style.display = index === currentSongIndex ? 'flex' : 'none';
 
-        const isPlayableInSlideshow = song.is_playable; // Use the is_playable flag from the song object
+        const isPlayableInSlideshow = song.is_playable;
         // Display progress bar only for playable songs in the slideshow
-        const progressBarHtml = isPlayableInSlideshow ? `
+        const progressBarHtml = isPlayableInSlideshow && song.audio_url ? `
             <div class="progress-container">
                 <span class="time current-time">0:00</span>
-                <div class="progress" onclick="moveProgress(event, ${index})">
-                    <div class="progress-bar" id="progress-bar-${index}"></div>
+                <div class="progress" onclick="moveProgress(event)">
+                    <div class="progress-bar" id="progress-bar-current"></div>
                 </div>
                 <span class="time duration-time">--:--</span>
             </div>` : '';
@@ -412,21 +402,19 @@ async function createSongElements() {
     rawSongsFromFirebase.forEach(item => {
         const parts = item.name.split('/');
         const folderName = parts[0];
-        const { song_name, artist_name } = parseSongName(item.name); // Use parseSongName for general songs
+        const { song_name, artist_name } = parseSongName(item.name);
 
-        const directFirebaseUrl = `${FIREBASE_STORAGE_BASE_URL}${item.bucket}/o/${encodeURIComponent(item.name)}?alt=media`;
-
-        // Determine if this song is one of the top 5 playable songs for the track list
-        let isTopPlayable = playableSongUrls.includes(directFirebaseUrl); // Check if its URL is in the playable list
+        // Corrected URL construction: FIREBASE_STORAGE_BASE_URL already includes bucket and /o/
+        const directFirebaseUrl = `${FIREBASE_STORAGE_BASE_URL}${encodeURIComponent(item.name)}?alt=media`;
 
         const songObj = {
             song_name: song_name,
             artist_name: artist_name,
             folder_name: folderName,
             cover_image: `https://placehold.co/50x50/333/white?text=${song_name.substring(0,2)}`,
-            audio_url: isTopPlayable ? directFirebaseUrl : '', // Only set audio_url if playable
-            is_playable: isTopPlayable,
-            direct_url: directFirebaseUrl
+            audio_url: directFirebaseUrl, // All songs fetched from Firebase are now treated as potentially playable
+            is_playable: true, // All songs from Firebase storage are now considered playable
+            direct_url: directFirebaseUrl // Store direct URL for playback
         };
 
         if (!tempGroupedTracks[folderName]) {
@@ -438,7 +426,7 @@ async function createSongElements() {
     // Store all grouped tracks globally
     allGroupedTracks = tempGroupedTracks;
 
-    // Initialize the view to folders
+    // Initial load, so set the view to folders
     showView('folders');
 
     feather.replace(); // Re-render feather icons after dynamic content is added
@@ -446,26 +434,16 @@ async function createSongElements() {
 
 /**
  * Loads a song by index, updates the slideshow, and prepares the audio.
- * @param {number} index - The index of the song to load.
+ * It now uses the currentPlaylist.
+ * @param {number} index - The index of the song to load within the currentPlaylist.
  */
 function loadSong(index) {
-    const songElements = document.querySelectorAll('.song');
-    songElements.forEach((song, i) => {
-        // Remove 'active' class from all songs
-        song.classList.remove('active');
-        song.style.display = i === index ? 'flex' : 'none'; // Show current, hide others
-    });
-
-    // Add 'active' class to the currently loaded song
-    const currentSongElement = songElements[index];
-    if (currentSongElement) {
-        currentSongElement.classList.add('active');
-        // Update the song title and artist in the "Now Playing" section
-        currentSongElement.querySelector('.song-title').textContent = songsArray[index].song_name;
-        currentSongElement.querySelector('.song-artist').textContent = songsArray[index].artist_name;
-        currentSongElement.querySelector('.album-cover').src = songsArray[index].cover_image;
-        currentSongElement.querySelector('.album-cover').alt = `Album Cover of ${songsArray[index].song_name}`;
+    if (index < 0 || index >= currentPlaylist.length) {
+        console.warn('Invalid song index for current playlist:', index);
+        return;
     }
+
+    const songData = currentPlaylist[index];
 
     // Stop current audio if playing
     if (currentAudio) {
@@ -475,15 +453,44 @@ function loadSong(index) {
         currentAudio.removeEventListener('ended', playNextSong);
     }
 
-    const songData = songsArray[index];
-    // Only create Audio object if the song is playable (within limit and has audio_url)
-    if (songData && songData.is_playable && songData.audio_url) { // Use songData.is_playable directly
+    // Update slideshow UI for the selected song
+    const slideshow = document.getElementById('slideshow');
+    slideshow.innerHTML = ''; // Clear previous song display
+
+    const songDiv = document.createElement('div');
+    songDiv.className = 'song active'; // Mark as active
+    songDiv.style.display = 'flex'; // Always show this single song
+
+    // Progress bar for the currently loaded song
+    const progressBarHtml = songData.is_playable && songData.audio_url ? `
+        <div class="progress-container">
+            <span class="time current-time">0:00</span>
+            <div class="progress" onclick="moveProgress(event)">
+                <div class="progress-bar" id="progress-bar-current"></div>
+            </div>
+            <span class="time duration-time">--:--</span>
+        </div>` : '';
+
+    songDiv.innerHTML = `
+        <img class="album-cover" src="${songData.cover_image}" alt="Album Cover of ${songData.song_name}" onclick="toggleFullscreen(this)">
+        <div class="info">
+            <h2 class="song-title">${songData.song_name}</h2>
+            <p class="song-artist">${songData.artist_name}</p>
+        </div>
+        ${progressBarHtml}`;
+    slideshow.appendChild(songDiv);
+
+
+    // Only create Audio object if the song is playable and has an audio_url
+    if (songData && songData.is_playable && songData.audio_url) {
         currentAudio = new Audio(songData.audio_url);
 
-        // Update progress bar
-        currentAudio.addEventListener('timeupdate', updateProgressBar);
+        currentAudio.addEventListener('loadedmetadata', () => {
+            // Update duration once metadata is loaded
+            updateProgressBar();
+        });
 
-        // Play next song when current one ends
+        currentAudio.addEventListener('timeupdate', updateProgressBar);
         currentAudio.addEventListener('ended', playNextSong);
 
         // Reset play/pause icon to play state when a new song is loaded
@@ -493,10 +500,10 @@ function loadSong(index) {
     } else {
         console.warn('No audio URL found or song is not playable:', songData);
         currentAudio = null; // Ensure currentAudio is null for non-playable songs
-        // Reset progress bar and time for non-playable songs
-        const progressBar = document.querySelector(`#progress-bar-${index}`);
+        // Reset progress bar and time for non-playable songs if elements exist
+        const progressBar = document.getElementById('progress-bar-current');
         if (progressBar) progressBar.style.width = '0%';
-        const timeSpans = currentSongElement ? currentSongElement.querySelectorAll('.time') : [];
+        const timeSpans = songDiv.querySelectorAll('.time');
         if (timeSpans.length === 2) {
             timeSpans[0].textContent = '0:00';
             timeSpans[1].textContent = '--:--';
@@ -516,17 +523,16 @@ function updateProgressBar() {
         return;
     }
 
-    const progressBar = document.querySelector(`#progress-bar-${currentSongIndex}`);
-    // Select time spans within the currently active song element
-    const currentSongElement = document.querySelector('.song.active');
-    const timeSpans = currentSongElement ? currentSongElement.querySelectorAll('.time') : [];
+    // The progress bar ID is now dynamic based on the currently displayed song in the slideshow
+    const progressBar = document.getElementById('progress-bar-current');
+    const timeSpans = document.querySelector('.song.active')?.querySelectorAll('.time');
 
     if (progressBar) {
         const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
         progressBar.style.width = progress + '%';
     }
 
-    if (timeSpans.length === 2) {
+    if (timeSpans && timeSpans.length === 2) {
         const formatTime = (seconds) => {
             const minutes = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
@@ -538,27 +544,20 @@ function updateProgressBar() {
 }
 
 /**
- * Plays the next song in the playlist when the current one ends.
+ * Plays the next song in the current playlist when the current one ends.
  */
 function playNextSong() {
-    // Increment index and loop back if at the end
-    let nextIndex = (currentSongIndex + 1) % songsArray.length;
-
-    // Find the next playable song in the sequence
-    // If the current song is the last playable one, loop back to the first playable.
-    if (currentSongIndex === MAX_PLAYABLE_SONGS - 1) {
-        currentSongIndex = 0; // Loop back to the first song
-    } else {
-        currentSongIndex = nextIndex;
+    if (currentPlaylist.length === 0) {
+        console.warn('No songs in current playlist to play next.');
+        return;
     }
-
+    currentSongIndex = (currentSongIndex + 1) % currentPlaylist.length;
     loadSong(currentSongIndex);
-    if (currentAudio) { // Only attempt to play if currentAudio was successfully created (i.e., song is playable)
+    if (currentAudio) {
         currentAudio.play();
         document.getElementById('playPauseIcon').setAttribute('data-feather', 'pause-circle');
         feather.replace();
     } else {
-        // If the next song is not playable, ensure the main play/pause icon is 'play-circle'
         document.getElementById('playPauseIcon').setAttribute('data-feather', 'play-circle');
         feather.replace();
     }
@@ -567,10 +566,14 @@ function playNextSong() {
 
 // Event listeners for navigation
 document.getElementById('prev').addEventListener('click', () => {
-    currentSongIndex = (currentSongIndex - 1 + songsArray.length) % songsArray.length;
+    if (currentPlaylist.length === 0) {
+        showMessage('No songs to navigate.');
+        return;
+    }
+    currentSongIndex = (currentSongIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
     loadSong(currentSongIndex);
-    if (currentAudio) { // Only attempt to play if currentAudio was successfully created
-        currentAudio.play(); // Auto-play when navigating
+    if (currentAudio) {
+        currentAudio.play();
         document.getElementById('playPauseIcon').setAttribute('data-feather', 'pause-circle');
         feather.replace();
     } else {
@@ -580,10 +583,14 @@ document.getElementById('prev').addEventListener('click', () => {
 });
 
 document.getElementById('next').addEventListener('click', () => {
-    currentSongIndex = (currentSongIndex + 1) % songsArray.length;
+    if (currentPlaylist.length === 0) {
+        showMessage('No songs to navigate.');
+        return;
+    }
+    currentSongIndex = (currentSongIndex + 1) % currentPlaylist.length;
     loadSong(currentSongIndex);
-    if (currentAudio) { // Only attempt to play if currentAudio was successfully created
-        currentAudio.play(); // Auto-play when navigating
+    if (currentAudio) {
+        currentAudio.play();
         document.getElementById('playPauseIcon').setAttribute('data-feather', 'pause-circle');
         feather.replace();
     } else {
@@ -603,7 +610,17 @@ document.getElementById('goToNowPlayingBtn').addEventListener('click', () => sho
 
 // Initial setup on page load
 createSongElements().then(() => {
-    loadSong(currentSongIndex);
+    // Hide loading overlay and show content after everything is loaded
+    document.getElementById('loading-overlay').classList.add('hidden');
+    document.getElementById('__next').classList.remove('hidden');
+
+    loadSong(currentSongIndex); // Load the initial song (from mainPlayableSongs)
     // Set initial view to folders
     showView('folders');
+}).catch(error => {
+    console.error("Failed to load initial song elements:", error);
+    // Even if there's an error, hide the loading overlay to not block the user
+    document.getElementById('loading-overlay').classList.add('hidden');
+    document.getElementById('__next').classList.remove('hidden');
+    showMessage('Failed to load music. Please try again later.', 5000);
 });
